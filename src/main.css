@@ -1,0 +1,10 @@
+@font-face {
+  font-family: "Digital7";
+  src: url("./fonts/digital-7.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-digital {
+  font-family: "Digital7", sans-serif !important;
+}
