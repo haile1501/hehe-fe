@@ -41,6 +41,7 @@ export const Round2Questions = () => {
       question: "",
       choices: [{ label: "", text: "" }],
       correctAnswer: "",
+      teamAnswers: [],
     };
 
     setDraftQuestions([newQuestion]);

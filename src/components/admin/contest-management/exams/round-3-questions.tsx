@@ -43,6 +43,7 @@ export const Round3Questions = () => {
         question: "",
         choices: [],
         correctAnswer: "",
+        teamAnswers: [],
       },
     ]);
   };

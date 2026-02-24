@@ -43,6 +43,7 @@ export const Round1Questions = () => {
       choices: [],
       correctAnswer: "A",
       time: 30,
+      teamAnswers: [],
     };
 
     setDraftQuestions([newQuestion]);

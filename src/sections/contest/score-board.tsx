@@ -41,12 +41,12 @@ export const ScoreBoard = ({ teams }: ScoreBoardProps) => {
   return (
     <Box maxWidth={1000} mx="auto">
       <Typography
-        variant="h3"
+        variant="h2"
         align="center"
         fontWeight="bold"
         gutterBottom
         color="rgba(255,255,255,0.9)"
-        pt={8}
+        pt={7}
       >
         BẢNG XẾP HẠNG
       </Typography>
@@ -55,11 +55,11 @@ export const ScoreBoard = ({ teams }: ScoreBoardProps) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell align="center" sx={{ fontSize: 20, fontWeight: 700 }}>
+              <TableCell align="center" sx={{ fontSize: 24, fontWeight: 700 }}>
                 Hạng
               </TableCell>
-              <TableCell sx={{ fontSize: 20, fontWeight: 700 }}>Đội</TableCell>
-              <TableCell align="center" sx={{ fontSize: 20, fontWeight: 700 }}>
+              <TableCell sx={{ fontSize: 24, fontWeight: 700 }}>Đội</TableCell>
+              <TableCell align="center" sx={{ fontSize: 24, fontWeight: 700 }}>
                 Điểm
               </TableCell>
               {/* <TableCell align="center" sx={{ fontSize: 20, fontWeight: 700 }}>
@@ -79,21 +79,21 @@ export const ScoreBoard = ({ teams }: ScoreBoardProps) => {
               >
                 <TableCell
                   align="center"
-                  sx={{ fontSize: 22, fontWeight: 600 }}
+                  sx={{ fontSize: 25, fontWeight: 600 }}
                 >
                   {index === 0 && (
-                    <EmojiEventsIcon sx={{ mr: 1, fontSize: 28 }} />
+                    <EmojiEventsIcon sx={{ mr: 1, fontSize: 31 }} />
                   )}
                   #{index + 1}
                 </TableCell>
 
-                <TableCell sx={{ fontSize: 22, fontWeight: 600 }}>
+                <TableCell sx={{ fontSize: 25, fontWeight: 600 }}>
                   {team.name}
                 </TableCell>
 
                 <TableCell
                   align="center"
-                  sx={{ fontSize: 22, fontWeight: 700 }}
+                  sx={{ fontSize: 25, fontWeight: 700 }}
                 >
                   {team.totalScore}
                 </TableCell>
