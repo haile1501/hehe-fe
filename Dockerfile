@@ -8,6 +8,8 @@ COPY . .
 
 RUN npm install 
 
+ENV VITE_API_URL=/api
+
 RUN npm run build
 
 # ===== Stage 2: Serve =====

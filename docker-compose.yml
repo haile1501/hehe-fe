@@ -1,0 +1,22 @@
+services:
+  backend:
+    image: 26feb-kahoot:latest
+    expose:
+      - "3000"
+    environment:
+      - MONGO_URI=URI
+    networks:
+      - hehehe_default
+
+  frontend:
+    image: 26feb-kahoot-fe:latest
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - hehehe_default
+
+networks:
+  hehehe_default:
+    driver: bridge
