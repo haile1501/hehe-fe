@@ -65,7 +65,7 @@ export const Round3Questions = () => {
       {
         ...prev[0],
         choices: [{ label: "", text: value }],
-        correctAnswer: "",
+        correctAnswer: value,
       },
     ]);
   };

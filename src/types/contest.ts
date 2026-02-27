@@ -19,6 +19,7 @@ export type Team = {
   name: string;
   password: string;
   totalScore: number;
+  color: string;
 };
 
 export type ContestState = {

@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  InputAdornment,
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -16,6 +17,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
+import PaletteIcon from "@mui/icons-material/Palette";
 
 import { dispatch, useSelector } from "@/redux/store";
 import { useEffect, useState } from "react";
@@ -25,6 +27,7 @@ interface Team {
   name: string;
   password: string;
   totalScore: number;
+  color: string;
 }
 
 export const TeamManagement = () => {
@@ -36,12 +39,16 @@ export const TeamManagement = () => {
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Lấy trạng thái từ contestDetail
   const isStarted = contestDetail?.isStarted || false;
 
   useEffect(() => {
     if (contestDetail?.teams) {
-      setDraftTeams(contestDetail.teams);
+      // Đảm bảo các team cũ nếu chưa có màu sẽ có màu mặc định
+      const teamsWithColor = contestDetail.teams.map((t: Team) => ({
+        ...t,
+        color: t.color || "#3f51b5",
+      }));
+      setDraftTeams(teamsWithColor);
     }
   }, [contestDetail]);
 
@@ -50,9 +57,10 @@ export const TeamManagement = () => {
   }
 
   const handleAddTeam = () => {
-    if (isStarted) return; // Bảo vệ logic
+    if (isStarted) return;
     setEditingIndex(null);
-    setDraftTeam({ name: "", password: "", totalScore: 0 });
+    // Khởi tạo team mới với màu mặc định
+    setDraftTeam({ name: "", password: "", totalScore: 0, color: "#3f51b5" });
   };
 
   const handleEditTeam = (index: number) => {
@@ -112,10 +120,32 @@ export const TeamManagement = () => {
 
       {/* ===== LIST TEAM ===== */}
       {draftTeams.map((team, idx) => (
-        <Box key={idx} sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2 }}>
-          <Stack direction="row" justifyContent="space-between">
+        <Box
+          key={idx}
+          sx={{
+            p: 2,
+            border: "1px solid #ddd",
+            borderRadius: 2,
+            borderLeft: `6px solid ${team.color || "#ccc"}`, // Hiển thị màu ở viền trái cho đẹp
+          }}
+        >
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Box>
-              <Typography fontWeight={600}>{team.name}</Typography>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Box
+                  sx={{
+                    width: 14,
+                    height: 14,
+                    borderRadius: "50%",
+                    backgroundColor: team.color,
+                  }}
+                />
+                <Typography fontWeight={600}>{team.name}</Typography>
+              </Stack>
               <Typography variant="body2" color="text.secondary">
                 Password: {team.password}
               </Typography>
@@ -127,7 +157,7 @@ export const TeamManagement = () => {
                 variant="outlined"
                 startIcon={<EditIcon />}
                 onClick={() => handleEditTeam(idx)}
-                disabled={isStarted} // Disable nút sửa
+                disabled={isStarted}
               >
                 Sửa
               </Button>
@@ -138,7 +168,7 @@ export const TeamManagement = () => {
                 variant="outlined"
                 startIcon={<DeleteIcon />}
                 onClick={() => setDeleteIndex(idx)}
-                disabled={isStarted} // Disable nút xóa
+                disabled={isStarted}
               >
                 Xoá
               </Button>
@@ -148,97 +178,133 @@ export const TeamManagement = () => {
       ))}
 
       {/* ===== ADD BUTTON ===== */}
-      <Button
-        variant="contained"
-        startIcon={<AddIcon />}
-        onClick={handleAddTeam}
-        disabled={isStarted} // Disable nút thêm
-        sx={{ alignSelf: "flex-start" }}
-      >
-        Thêm đội
-      </Button>
+      {!draftTeam && (
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleAddTeam}
+          disabled={isStarted}
+          sx={{ alignSelf: "flex-start" }}
+        >
+          Thêm đội
+        </Button>
+      )}
 
       {/* ===== FORM ADD / EDIT ===== */}
       {draftTeam && (
-        <Box sx={{ p: 3, border: "1px dashed #aaa", borderRadius: 2 }}>
-          <Typography mb={2}>
-            {editingIndex !== null ? "Sửa đội" : "Thêm đội"}
+        <Box
+          sx={{
+            p: 3,
+            border: "1px dashed #aaa",
+            borderRadius: 2,
+            bgcolor: "#f9f9f9",
+          }}
+        >
+          <Typography variant="subtitle1" fontWeight={700} mb={2}>
+            {editingIndex !== null ? "Chỉnh sửa đội" : "Tạo đội mới"}
           </Typography>
 
-          <TextField
-            fullWidth
-            label="Tên đội"
-            disabled={isStarted} // Khóa input
-            value={draftTeam.name}
-            onChange={(e) =>
-              setDraftTeam({ ...draftTeam, name: e.target.value })
-            }
-            sx={{ mb: 2 }}
-          />
+          <Stack spacing={2}>
+            <TextField
+              fullWidth
+              label="Tên đội"
+              disabled={isStarted}
+              value={draftTeam.name}
+              onChange={(e) =>
+                setDraftTeam({ ...draftTeam, name: e.target.value })
+              }
+            />
 
-          <TextField
-            fullWidth
-            label="Password"
-            disabled={isStarted} // Khóa input
-            value={draftTeam.password}
-            onChange={(e) =>
-              setDraftTeam({ ...draftTeam, password: e.target.value })
-            }
-            sx={{ mb: 2 }}
-          />
+            <TextField
+              fullWidth
+              label="Password"
+              disabled={isStarted}
+              value={draftTeam.password}
+              onChange={(e) =>
+                setDraftTeam({ ...draftTeam, password: e.target.value })
+              }
+            />
 
-          <Stack direction="row" spacing={2}>
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              onClick={handleSaveDraft}
-              disabled={isStarted} // Disable nút lưu nháp
-            >
-              Lưu
-            </Button>
-
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<CloseIcon />}
-              onClick={() => {
-                setDraftTeam(null);
-                setEditingIndex(null);
+            {/* Color Picker Field */}
+            <TextField
+              fullWidth
+              label="Màu sắc đại diện"
+              type="color"
+              disabled={isStarted}
+              value={draftTeam.color}
+              onChange={(e) =>
+                setDraftTeam({ ...draftTeam, color: e.target.value })
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PaletteIcon />
+                  </InputAdornment>
+                ),
               }}
-            >
-              Huỷ
-            </Button>
+              helperText="Chọn màu sắc để phân biệt đội trên bảng xếp hạng"
+            />
+
+            <Stack direction="row" spacing={2} pt={1}>
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                onClick={handleSaveDraft}
+                disabled={isStarted}
+              >
+                Xác nhận
+              </Button>
+
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<CloseIcon />}
+                onClick={() => {
+                  setDraftTeam(null);
+                  setEditingIndex(null);
+                }}
+              >
+                Huỷ bỏ
+              </Button>
+            </Stack>
           </Stack>
         </Box>
       )}
+
+      <hr style={{ border: "0.5px solid #eee", width: "100%" }} />
 
       {/* ===== SAVE TO SERVER BUTTON ===== */}
       <Button
         variant="contained"
         color="success"
+        size="large"
         onClick={handleSaveToServer}
-        disabled={loading || isStarted} // Disable nút lưu server
+        disabled={loading || isStarted || draftTeams.length === 0}
+        sx={{ fontWeight: "bold" }}
       >
-        {loading ? "Đang lưu..." : "Lưu đội"}
+        {loading ? "Đang xử lý..." : "Lưu tất cả thay đổi lên hệ thống"}
       </Button>
 
       {/* ===== DELETE CONFIRM ===== */}
       <Dialog open={deleteIndex !== null} onClose={() => setDeleteIndex(null)}>
-        <DialogTitle>Xác nhận xoá</DialogTitle>
+        <DialogTitle>Xác nhận xoá đội</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Bạn có chắc chắn muốn xoá đội này?
+            Hành động này sẽ xoá đội{" "}
+            <b>{deleteIndex !== null && draftTeams[deleteIndex]?.name}</b> khỏi
+            danh sách tạm thời. Bạn vẫn cần nhấn "Lưu tất cả" để hoàn tất.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteIndex(null)}>Huỷ</Button>
+          <Button onClick={() => setDeleteIndex(null)}>Hủy</Button>
           <Button
             color="error"
+            variant="contained"
             onClick={() =>
               deleteIndex !== null && handleDeleteDraft(deleteIndex)
             }
           >
-            Xoá
+            Đồng ý xoá
           </Button>
         </DialogActions>
       </Dialog>

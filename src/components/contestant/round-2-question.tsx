@@ -158,7 +158,7 @@ const GreenPanel = ({ children }: { children: React.ReactNode }) => (
     sx={{
       position: "relative",
       width: "100%",
-      height: "180px",
+      height: "380px",
       bgcolor: "#E6E7E8",
       borderRadius: "0 40px 0 40px",
       clipPath:
@@ -171,7 +171,7 @@ const GreenPanel = ({ children }: { children: React.ReactNode }) => (
     <Box
       sx={{
         width: "98%",
-        height: "160px",
+        height: "360px",
         bgcolor: "#A8D59C",
         borderRadius: "0 35px 0 35px",
         clipPath:

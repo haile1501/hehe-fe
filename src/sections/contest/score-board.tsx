@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import {
   Box,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -10,7 +11,6 @@ import {
   TableHead,
   TableRow,
   Typography,
-  Chip,
 } from "@mui/material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 
@@ -23,19 +23,16 @@ export const ScoreBoard = ({ teams }: ScoreBoardProps) => {
     return [...teams].sort((a, b) => b.totalScore - a.totalScore);
   }, [teams]);
 
-  const getRowStyle = (index: number) => {
-    switch (index) {
-      case 0:
-        return { backgroundColor: "#FFD700" };
-      case 1:
-        return { backgroundColor: "#C0C0C0" };
-      case 2:
-        return { backgroundColor: "#CD7F32" };
-      case 3:
-        return { backgroundColor: "#A5D6A7" };
-      default:
-        return {};
-    }
+  // Hàm tính toán màu chữ (đen hoặc trắng) dựa trên độ sáng của background
+  // Giúp chữ luôn đọc được bất kể team chọn màu gì
+  const getContrastYIQ = (hexcolor: string) => {
+    if (!hexcolor) return "black";
+    const hex = hexcolor.replace("#", "");
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq >= 128 ? "black" : "white";
   };
 
   return (
@@ -62,54 +59,71 @@ export const ScoreBoard = ({ teams }: ScoreBoardProps) => {
               <TableCell align="center" sx={{ fontSize: 24, fontWeight: 700 }}>
                 Điểm
               </TableCell>
-              {/* <TableCell align="center" sx={{ fontSize: 20, fontWeight: 700 }}>
-                Trạng thái
-              </TableCell> */}
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {sortedTeams.map((team, index) => (
-              <TableRow
-                key={team.name}
-                sx={{
-                  ...getRowStyle(index),
-                  height: 70,
-                }}
-              >
-                <TableCell
-                  align="center"
-                  sx={{ fontSize: 25, fontWeight: 600 }}
+            {sortedTeams.map((team, index) => {
+              const rowColor = team.color || "#ffffff";
+              const textColor = getContrastYIQ(rowColor);
+
+              return (
+                <TableRow
+                  key={team.name}
+                  sx={{
+                    backgroundColor: rowColor, // Sử dụng màu của team
+                    height: 80,
+                    transition: "transform 0.2s",
+                    "&:hover": {
+                      filter: "brightness(0.9)", // Hiệu ứng hover nhẹ
+                    },
+                  }}
                 >
-                  {index === 0 && (
-                    <EmojiEventsIcon sx={{ mr: 1, fontSize: 31 }} />
-                  )}
-                  #{index + 1}
-                </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: 25,
+                      fontWeight: 700,
+                      color: textColor, // Màu chữ tương phản
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      {index === 0 && (
+                        <EmojiEventsIcon
+                          sx={{ mr: 1, fontSize: 31, color: textColor }}
+                        />
+                      )}
+                      #{index + 1}
+                    </Stack>
+                  </TableCell>
 
-                <TableCell sx={{ fontSize: 25, fontWeight: 600 }}>
-                  {team.name}
-                </TableCell>
+                  <TableCell
+                    sx={{
+                      fontSize: 25,
+                      fontWeight: 700,
+                      color: textColor,
+                    }}
+                  >
+                    {team.name}
+                  </TableCell>
 
-                <TableCell
-                  align="center"
-                  sx={{ fontSize: 25, fontWeight: 700 }}
-                >
-                  {team.totalScore}
-                </TableCell>
-
-                {/* <TableCell align="center">
-                  {index < 4 && (
-                    <Chip
-                      label="Vào vòng trong"
-                      color="success"
-                      size="medium"
-                      sx={{ fontSize: 14, fontWeight: 600 }}
-                    />
-                  )}
-                </TableCell> */}
-              </TableRow>
-            ))}
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: 30,
+                      fontWeight: 800,
+                      color: textColor,
+                    }}
+                  >
+                    {team.totalScore}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

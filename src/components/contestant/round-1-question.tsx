@@ -12,6 +12,7 @@ export const Round1Question = (props: Round1QuestionProps) => {
   const { contestDetail } = useSelector((state) => state.contest);
   const { username } = useAuth();
   const { socket } = props;
+  const [isOutOfTime, setIsOutOfTime] = useState(false);
 
   if (!contestDetail) return null;
 
@@ -52,13 +53,28 @@ export const Round1Question = (props: Round1QuestionProps) => {
     });
   };
 
-  const showResult = remainTime <= 0;
+  const showResult = remainTime <= 0 || isOutOfTime;
 
   return (
-    <Stack alignItems="center" height="100vh" pt={3} spacing={8}>
-      <Stack direction="row" alignItems="center" spacing={4} width="60%">
-        <GreenPanel>{currentQuestion.question}</GreenPanel>
-        <Timer time={remainTime} />
+    <Stack
+      alignItems="center"
+      height="100vh"
+      pt={3}
+      spacing={8}
+      position="relative"
+    >
+      <Stack direction="row" alignItems="center" spacing={4} width="80%">
+        <GreenPanel>
+          <Typography variant="h5" fontWeight={700}>
+            {currentQuestion.question}
+          </Typography>
+        </GreenPanel>
+        <Box position="absolute" right={30} top={40}>
+          <Timer
+            time={remainTime}
+            setIsOutOfTime={() => setIsOutOfTime(true)}
+          />
+        </Box>
       </Stack>
 
       <Grid container rowSpacing={16} columnSpacing={20} width="80vw">
@@ -91,7 +107,7 @@ export const GreenPanel = ({ children, height = 220 }: GreenPanelProps) => {
       sx={{
         position: "relative",
         width: "100%",
-        height: "135px",
+        height: "285px",
         backgroundColor: "#E6E7E8",
         // 1. Bo tròn góc TRÊN-PHẢI và DƯỚI-TRÁI
         borderRadius: "0 35px 0 35px",
@@ -114,7 +130,7 @@ export const GreenPanel = ({ children, height = 220 }: GreenPanelProps) => {
         sx={{
           position: "relative",
           width: "99%",
-          height: "120px",
+          height: "270px",
           backgroundColor: "#A8D59C",
           // 1. Bo tròn góc TRÊN-PHẢI và DƯỚI-TRÁI
           borderRadius: "0 30px 0 30px",
@@ -139,7 +155,13 @@ export const GreenPanel = ({ children, height = 220 }: GreenPanelProps) => {
   );
 };
 
-export const Timer = ({ time }: { time: number }) => {
+export const Timer = ({
+  time,
+  setIsOutOfTime,
+}: {
+  time: number;
+  setIsOutOfTime: () => void;
+}) => {
   const [currentTime, setCurrentTime] = useState(time);
 
   useEffect(() => {
@@ -157,6 +179,12 @@ export const Timer = ({ time }: { time: number }) => {
 
     return () => clearInterval(interval);
   }, [time]);
+
+  useEffect(() => {
+    if (currentTime === 0) {
+      setIsOutOfTime();
+    }
+  }, [currentTime]);
 
   return (
     <Stack
@@ -279,7 +307,7 @@ const ChoiceItem = ({
           justifyContent: "space-between",
           paddingX: 4,
           color: "white",
-          fontWeight: 600,
+          fontWeight: 700,
           transition: "all 0.2s ease",
           border: selected ? "3px solid white" : "none", // Viền trắng khi chọn
         }}
