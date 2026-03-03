@@ -82,9 +82,31 @@ export const Round3Question = (props: Round3QuestionProps) => {
             <Typography fontSize="1.5rem" fontWeight={700} color="#000" mb={2}>
               CÂU HỎI {contestDetail.round3.currentQuestion + 1}:
             </Typography>
-            <Typography fontSize="1.5rem" fontWeight={600}>
-              {currentQuestion.question}
-            </Typography>
+            <Stack
+              direction="row"
+              alignItems="center"
+              width="100%"
+              height="100%"
+            >
+              <Typography
+                fontSize="1.5rem"
+                fontWeight={600}
+                sx={{ whiteSpace: "pre-wrap" }}
+                width={currentQuestion.image ? "50%" : "100%"}
+              >
+                {currentQuestion.question}
+              </Typography>
+              {currentQuestion.image && (
+                <Stack p={1} width="50%" height="100%">
+                  <Box
+                    component="img"
+                    src={currentQuestion.image}
+                    width="100%"
+                    height="100%"
+                  />
+                </Stack>
+              )}
+            </Stack>
           </Stack>
           {/* Bóng đen đổ phía sau */}
           <Stack

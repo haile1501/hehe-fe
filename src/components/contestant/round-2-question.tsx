@@ -44,9 +44,32 @@ export const Round2Question = () => {
           </IconButton>
 
           <GreenPanel>
-            <Typography fontSize="1.75rem" textAlign="center" fontWeight={700}>
-              {currentQuestion.question}
-            </Typography>
+            <Stack
+              direction="row"
+              alignItems="center"
+              width="100%"
+              height="100%"
+            >
+              <Typography
+                fontSize="1.75rem"
+                textAlign="center"
+                width={currentQuestion.image ? "50%" : "100%"}
+                fontWeight={700}
+                sx={{ whiteSpace: "pre-wrap" }}
+              >
+                {currentQuestion.question}
+              </Typography>
+              {currentQuestion.image && (
+                <Stack p={1} width="50%" height="100%">
+                  <Box
+                    component="img"
+                    src={currentQuestion.image}
+                    width="100%"
+                    height="100%"
+                  />
+                </Stack>
+              )}
+            </Stack>
           </GreenPanel>
         </Box>
       </Stack>
@@ -158,7 +181,7 @@ const GreenPanel = ({ children }: { children: React.ReactNode }) => (
     sx={{
       position: "relative",
       width: "100%",
-      height: "380px",
+      height: "630px",
       bgcolor: "#E6E7E8",
       borderRadius: "0 40px 0 40px",
       clipPath:
@@ -171,7 +194,7 @@ const GreenPanel = ({ children }: { children: React.ReactNode }) => (
     <Box
       sx={{
         width: "98%",
-        height: "360px",
+        height: "610px",
         bgcolor: "#A8D59C",
         borderRadius: "0 35px 0 35px",
         clipPath:

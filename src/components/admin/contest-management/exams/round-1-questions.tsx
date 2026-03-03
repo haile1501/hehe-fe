@@ -22,6 +22,22 @@ import { QuestionType } from "@/types/question";
 import { Exam } from "@/types/exam";
 import { updateEdittingExam } from "@/redux/slices/exam";
 
+const uploadToCloudinary = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "harryle"); // Thay bằng preset của bạn
+
+  const res = await fetch(
+    "https://api.cloudinary.com/v1_1/dfo2moaod/image/upload",
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+  const data = await res.json();
+  return data.secure_url; // Trả về URL ảnh
+};
+
 export const Round1Questions = () => {
   const { edittingExam } = useSelector((state) => state.exam);
   const dispatch = useDispatch();
@@ -33,6 +49,30 @@ export const Round1Questions = () => {
   if (!edittingExam) {
     return <Typography>Không tìm thấy đề thi</Typography>;
   }
+
+  const handleImageChange = async (qIndex: number, file: File | null) => {
+    // Nếu file là null (người dùng bấm X), cập nhật state thành chuỗi rỗng và thoát
+    if (!file) {
+      setDraftQuestions((prev) => {
+        const updated = [...prev];
+        updated[qIndex].image = ""; // Xóa URL ảnh hiện tại
+        return updated;
+      });
+      return;
+    }
+
+    // Nếu có file thì mới tiến hành upload
+    try {
+      const imageUrl = await uploadToCloudinary(file);
+      setDraftQuestions((prev) => {
+        const updated = [...prev];
+        updated[qIndex].image = imageUrl;
+        return updated;
+      });
+    } catch (error) {
+      alert("Upload ảnh thất bại!");
+    }
+  };
 
   // ================= ADD =================
   const handleAddQuestion = () => {
@@ -176,7 +216,7 @@ export const Round1Questions = () => {
             }}
           >
             <Stack direction="row" justifyContent="space-between">
-              <Typography fontWeight={600}>
+              <Typography fontWeight={600} sx={{ whiteSpace: "pre-wrap" }}>
                 Câu {idx + 1}: {q.question} ({q.time}s)
               </Typography>
 
@@ -201,6 +241,14 @@ export const Round1Questions = () => {
                 </Button>
               </Stack>
             </Stack>
+
+            {q.image && (
+              <Box
+                component="img"
+                src={q.image}
+                sx={{ mt: 1, maxWidth: 300, borderRadius: 1, display: "block" }}
+              />
+            )}
 
             <Stack sx={{ mt: 1 }}>
               {q.choices.map((c) => (
@@ -243,7 +291,47 @@ export const Round1Questions = () => {
             value={q.question}
             onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
             sx={{ mb: 2 }}
+            multiline
+            rows={5}
           />
+
+          <Stack spacing={1} sx={{ mb: 2 }}>
+            <Button variant="outlined" component="label">
+              Tải ảnh lên
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={(e) =>
+                  e.target.files && handleImageChange(qIndex, e.target.files[0])
+                }
+              />
+            </Button>
+
+            {q.image && (
+              <Box sx={{ position: "relative", width: 200 }}>
+                <img
+                  src={q.image}
+                  alt="Preview"
+                  style={{ width: "100%", borderRadius: 8 }}
+                />
+                <Button
+                  size="small"
+                  color="error"
+                  onClick={() => handleImageChange(qIndex, null)} // Logic xóa ảnh nếu cần
+                  sx={{
+                    minWidth: 0,
+                    position: "absolute",
+                    top: 5,
+                    right: 5,
+                    bgcolor: "white",
+                  }}
+                >
+                  X
+                </Button>
+              </Box>
+            )}
+          </Stack>
 
           <TextField
             type="number"

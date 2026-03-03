@@ -21,6 +21,22 @@ import { Exam } from "@/types/exam";
 import { QuestionType } from "@/types/question";
 import { updateEdittingExam } from "@/redux/slices/exam";
 
+const uploadToCloudinary = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "harryle"); // Thay bằng preset của bạn
+
+  const res = await fetch(
+    "https://api.cloudinary.com/v1_1/dfo2moaod/image/upload",
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+  const data = await res.json();
+  return data.secure_url; // Trả về URL ảnh
+};
+
 export const Round3Questions = () => {
   const { edittingExam } = useSelector((state) => state.exam);
   const dispatch = useDispatch();
@@ -32,6 +48,19 @@ export const Round3Questions = () => {
   if (!edittingExam) {
     return <Typography>Không tìm thấy đề thi</Typography>;
   }
+
+  const handleImageChange = async (file: File | null) => {
+    if (!file) {
+      setDraftQuestions((prev) => [{ ...prev[0], image: "" }]);
+      return;
+    }
+    try {
+      const imageUrl = await uploadToCloudinary(file);
+      setDraftQuestions((prev) => [{ ...prev[0], image: imageUrl }]);
+    } catch (error) {
+      alert("Upload ảnh thất bại");
+    }
+  };
 
   const currentQuestions = edittingExam.round3?.questions || [];
 
@@ -135,7 +164,7 @@ export const Round3Questions = () => {
             sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, mb: 2 }}
           >
             <Stack direction="row" justifyContent="space-between">
-              <Typography fontWeight={600}>
+              <Typography fontWeight={600} sx={{ whiteSpace: "pre-wrap" }}>
                 Câu {idx + 1}: {q.question}
               </Typography>
 
@@ -161,6 +190,21 @@ export const Round3Questions = () => {
               </Stack>
             </Stack>
 
+            {q.image && (
+              <Box
+                component="img"
+                src={q.image}
+                sx={{
+                  mt: 2,
+                  maxWidth: "100%",
+                  width: 300, // Tăng size cho dễ nhìn
+                  height: "auto",
+                  borderRadius: 1,
+                  display: "block",
+                }}
+              />
+            )}
+
             <Typography mt={1}>
               Đáp án: {q.choices?.[0]?.text || "(chưa có đáp án)"}
             </Typography>
@@ -184,10 +228,43 @@ export const Round3Questions = () => {
           <TextField
             fullWidth
             label="Nội dung câu hỏi"
+            multiline // CHO PHÉP XUỐNG DÒNG
+            rows={5}
             value={draftQuestions[0].question}
             onChange={(e) => handleQuestionChange(e.target.value)}
             sx={{ mb: 2 }}
           />
+
+          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+            <Button variant="outlined" component="label">
+              Tải ảnh
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={(e) =>
+                  e.target.files && handleImageChange(e.target.files[0])
+                }
+              />
+            </Button>
+            {draftQuestions[0].image && (
+              <Box sx={{ position: "relative" }}>
+                <img
+                  src={draftQuestions[0].image}
+                  alt="preview"
+                  style={{ height: 50, borderRadius: 4 }}
+                />
+                <Button
+                  size="small"
+                  color="error"
+                  sx={{ minWidth: 0, ml: 1 }}
+                  onClick={() => handleImageChange(null)}
+                >
+                  Xóa
+                </Button>
+              </Box>
+            )}
+          </Stack>
 
           <TextField
             fullWidth

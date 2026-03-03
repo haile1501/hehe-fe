@@ -65,9 +65,26 @@ export const Round1Question = (props: Round1QuestionProps) => {
     >
       <Stack direction="row" alignItems="center" spacing={4} width="80%">
         <GreenPanel>
-          <Typography variant="h5" fontWeight={700}>
-            {currentQuestion.question}
-          </Typography>
+          <Stack direction="row" alignItems="center" width="100%" height="100%">
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              width={currentQuestion.image ? "50%" : "100%"}
+              sx={{ whiteSpace: "pre-wrap" }}
+            >
+              {currentQuestion.question}
+            </Typography>
+            {currentQuestion.image && (
+              <Stack p={1} width="50%" height="100%">
+                <Box
+                  component="img"
+                  src={currentQuestion.image}
+                  width="100%"
+                  height="100%"
+                />
+              </Stack>
+            )}
+          </Stack>
         </GreenPanel>
         <Box position="absolute" right={30} top={40}>
           <Timer
@@ -77,7 +94,7 @@ export const Round1Question = (props: Round1QuestionProps) => {
         </Box>
       </Stack>
 
-      <Grid container rowSpacing={16} columnSpacing={20} width="80vw">
+      <Grid container rowSpacing={4} columnSpacing={4} width="80vw">
         {currentQuestion.choices.map((choice) => (
           <Grid size={{ xs: 6 }} key={choice.label}>
             <ChoiceItem
@@ -107,7 +124,7 @@ export const GreenPanel = ({ children, height = 220 }: GreenPanelProps) => {
       sx={{
         position: "relative",
         width: "100%",
-        height: "285px",
+        height: "385px",
         backgroundColor: "#E6E7E8",
         // 1. Bo tròn góc TRÊN-PHẢI và DƯỚI-TRÁI
         borderRadius: "0 35px 0 35px",
@@ -130,7 +147,7 @@ export const GreenPanel = ({ children, height = 220 }: GreenPanelProps) => {
         sx={{
           position: "relative",
           width: "99%",
-          height: "270px",
+          height: "370px",
           backgroundColor: "#A8D59C",
           // 1. Bo tròn góc TRÊN-PHẢI và DƯỚI-TRÁI
           borderRadius: "0 30px 0 30px",

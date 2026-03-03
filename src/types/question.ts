@@ -8,6 +8,7 @@ export type QuestionType = {
     teamName: string;
     answerLabel: string;
   }[];
+  image?: string;
 };
 
 type Choice = string;
