@@ -58,8 +58,9 @@ export const Round1Question = (props: Round1QuestionProps) => {
   return (
     <Stack
       alignItems="center"
-      height="100vh"
+      minHeight="100vh"
       pt={3}
+      pb={10}
       spacing={8}
       position="relative"
     >
@@ -118,52 +119,37 @@ interface GreenPanelProps {
   height?: number | string;
 }
 
-export const GreenPanel = ({ children, height = 220 }: GreenPanelProps) => {
+export const GreenPanel = ({ children }: { children: ReactNode }) => {
   return (
     <Box
       sx={{
         position: "relative",
         width: "100%",
-        height: "385px",
+        // Loại bỏ height cố định, dùng minHeight để đảm bảo không bị quá nhỏ
+        minHeight: "200px",
         backgroundColor: "#E6E7E8",
-        // 1. Bo tròn góc TRÊN-PHẢI và DƯỚI-TRÁI
         borderRadius: "0 35px 0 35px",
-        // 2. Gọt chéo góc TRÊN-TRÁI và DƯỚI-PHẢI
-        // Tọa độ polygon:
-        // (40px 0%) -> Vết cắt bắt đầu ở cạnh trên (trái)
-        // (100% 0%) -> Chạy sang phải (sẽ được borderRadius bo cong)
-        // (100% calc(100% - 40px)) -> Vết cắt bắt đầu ở cạnh phải (dưới)
-        // (calc(100% - 40px) 100%) -> Vết cắt kết thúc ở cạnh đáy (phải)
-        // (0% 100%) -> Chạy sang trái (sẽ được borderRadius bo cong)
-        // (0% 40px) -> Quay về cạnh trái để đóng vết cắt trên-trái
+        // ClipPath giữ nguyên nhưng sẽ tự chạy theo kích thước Box
         clipPath:
           "polygon(35px 0%, 100% 0%, 100% calc(100% - 35px), calc(100% - 35px) 100%, 0% 100%, 0% 35px)",
         display: "flex",
-        alignItems: "center",
+        alignItems: "stretch", // Stretch để Box con bên dưới phủ hết chiều cao
         justifyContent: "center",
+        p: "8px", // Khoảng cách để lộ lớp màu xám bên dưới (border giả)
       }}
     >
       <Box
         sx={{
           position: "relative",
-          width: "99%",
-          height: "370px",
+          width: "100%",
           backgroundColor: "#A8D59C",
-          // 1. Bo tròn góc TRÊN-PHẢI và DƯỚI-TRÁI
           borderRadius: "0 30px 0 30px",
-          // 2. Gọt chéo góc TRÊN-TRÁI và DƯỚI-PHẢI
-          // Tọa độ polygon:
-          // (35px 0%) -> Vết cắt bắt đầu ở cạnh trên (trái)
-          // (100% 0%) -> Chạy sang phải (sẽ được borderRadius bo cong)
-          // (100% calc(100% - 40px)) -> Vết cắt bắt đầu ở cạnh phải (dưới)
-          // (calc(100% - 40px) 100%) -> Vết cắt kết thúc ở cạnh đáy (phải)
-          // (0% 100%) -> Chạy sang trái (sẽ được borderRadius bo cong)
-          // (0% 40px) -> Quay về cạnh trái để đóng vết cắt trên-trái
           clipPath:
             "polygon(30px 0%, 100% 0%, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0% 100%, 0% 30px)",
           display: "flex",
           alignItems: "center",
-          padding: "0 40px",
+          // QUAN TRỌNG: Dùng padding để tạo độ cao dựa trên text
+          padding: "40px 40px",
         }}
       >
         {children}

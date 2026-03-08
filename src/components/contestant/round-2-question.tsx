@@ -2,12 +2,14 @@ import { useSelector } from "@/redux/store";
 import { useState } from "react";
 import { Box, Typography, IconButton, Grid, Stack } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useAuth } from "@/contexts/auth-context";
 
 export const Round2Question = () => {
   const { contestDetail } = useSelector((state) => state.contest);
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<
     number | null
   >(null);
+  const { username } = useAuth();
 
   if (!contestDetail) return null;
   const round2 = contestDetail.round2;
@@ -25,7 +27,7 @@ export const Round2Question = () => {
       <Stack
         alignItems="center"
         justifyContent="center"
-        height="100vh"
+        minHeight="100vh"
         spacing={4}
       >
         <Box sx={{ width: "80%", position: "relative" }}>
@@ -76,10 +78,61 @@ export const Round2Question = () => {
     );
   }
 
+  if (contestDetail.currentState === "question" && username !== "viewer") {
+    const team = contestDetail.teams.find((item) => item.name === username);
+    const assignedQuestionIndex = team?.assignedRound2Question || -1;
+
+    if (assignedQuestionIndex < 0) {
+      return <></>;
+    }
+
+    const question = contestDetail.round2.questions[assignedQuestionIndex];
+
+    return (
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        minHeight="100vh"
+        spacing={4}
+      >
+        <Box sx={{ width: "80%", position: "relative" }}>
+          <GreenPanel>
+            <Stack
+              direction="row"
+              alignItems="center"
+              width="100%"
+              height="100%"
+            >
+              <Typography
+                fontSize="1.75rem"
+                textAlign="center"
+                width={question.image ? "50%" : "100%"}
+                fontWeight={700}
+                sx={{ whiteSpace: "pre-wrap" }}
+              >
+                {question.question}
+              </Typography>
+              {question.image && (
+                <Stack p={1} width="50%" height="100%">
+                  <Box
+                    component="img"
+                    src={question.image}
+                    width="100%"
+                    height="100%"
+                  />
+                </Stack>
+              )}
+            </Stack>
+          </GreenPanel>
+        </Box>
+      </Stack>
+    );
+  }
+
   return (
     <Box
       sx={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -98,7 +151,11 @@ export const Round2Question = () => {
           <StarItem
             key={idx}
             number={idx + 1}
-            onClick={() => setSelectedQuestionIndex(idx)}
+            onClick={
+              username === "viewer"
+                ? () => setSelectedQuestionIndex(idx)
+                : () => {}
+            }
           />
         ))}
       </Stack>
@@ -117,7 +174,11 @@ export const Round2Question = () => {
               <StarItem
                 key={realIndex}
                 number={realIndex + 1}
-                onClick={() => setSelectedQuestionIndex(realIndex)}
+                onClick={
+                  username === "viewer"
+                    ? () => setSelectedQuestionIndex(idx)
+                    : () => {}
+                }
               />
             );
           })}
@@ -181,7 +242,7 @@ const GreenPanel = ({ children }: { children: React.ReactNode }) => (
     sx={{
       position: "relative",
       width: "100%",
-      height: "630px",
+      height: "315px",
       bgcolor: "#E6E7E8",
       borderRadius: "0 40px 0 40px",
       clipPath:
@@ -194,7 +255,7 @@ const GreenPanel = ({ children }: { children: React.ReactNode }) => (
     <Box
       sx={{
         width: "98%",
-        height: "610px",
+        height: "295px",
         bgcolor: "#A8D59C",
         borderRadius: "0 35px 0 35px",
         clipPath:

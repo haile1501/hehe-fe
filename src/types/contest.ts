@@ -20,6 +20,7 @@ export type Team = {
   password: string;
   totalScore: number;
   color: string;
+  assignedRound2Question: number;
 };
 
 export type ContestState = {

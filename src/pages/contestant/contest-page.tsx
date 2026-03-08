@@ -65,7 +65,7 @@ export const ContestantContestPage = () => {
     return (
       <Box
         sx={{
-          height: "100vh",
+          minHeight: "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -107,7 +107,10 @@ export const ContestantContestPage = () => {
     return <Round1Question socket={socket} />;
   }
 
-  if (contestDetail.currentRound === 2) {
+  if (
+    contestDetail.currentRound === 2 &&
+    contestDetail.currentState === "question"
+  ) {
     return <Round2Question />;
   }
 

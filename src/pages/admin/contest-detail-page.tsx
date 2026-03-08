@@ -16,6 +16,7 @@ import { useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "@/redux/store";
 import { getContestById } from "@/redux/slices/contest";
 import { TeamManagement } from "@/sections/contest/team-management";
+import { AssignQuestions } from "@/sections/contest/assign-questions";
 import { io, Socket } from "socket.io-client";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
@@ -53,10 +54,14 @@ export const ContestDetailPage = () => {
 
   if (!contest) return null;
 
-  // --- LOGIC TÍNH TOÁN DỮ LIỆU ---
   const getActiveStepFromRedux = () => {
     const { currentRound, currentState } = contest;
-    if (currentRound === 2) return 0;
+    if (currentRound === 2) {
+      if (currentState === "assign-question") return 0;
+      if (currentState === "question") return 1;
+      if (currentState === "score-board") return 2;
+      return 0;
+    }
 
     const roundData = currentRound === 1 ? contest.round1 : contest.round3;
     const qIdx =
@@ -89,15 +94,18 @@ export const ContestDetailPage = () => {
         steps.push({ label: `Câu ${i + 1}`, index: i * 2 });
         steps.push({ label: `BXH`, index: i * 2 + 1 });
       });
+    } else if (currentRound === 2) {
+      steps.push({ label: "Chọn câu hỏi", index: 0 });
+      steps.push({ label: "Chấm điểm", index: 1 });
+      steps.push({ label: "BXH", index: 2 });
     } else if (currentRound === 3) {
       contest.round3.questions.forEach((_, i) => {
         steps.push({ label: `Câu ${i + 1}`, index: i * 3 });
         steps.push({ label: `Đáp án`, index: i * 3 + 1 });
         steps.push({ label: `BXH`, index: i * 3 + 2 });
       });
-    } else {
-      steps.push({ label: "Vòng 2: Chọn sao", index: 0 });
     }
+
     return steps;
   };
 
@@ -244,7 +252,10 @@ export const ContestDetailPage = () => {
           </Box>
         )}
 
-        {(contest.currentRound === 2 ||
+        {contest.currentRound === 2 &&
+          contest.currentState === "assign-question" && <AssignQuestions />}
+
+        {((contest.currentRound === 2 && contest.currentState === "question") ||
           (contest.currentRound === 3 &&
             contest.currentState === "question")) && (
           <EditableScoreBoard teams={contest.teams} contestId={contest._id} />
