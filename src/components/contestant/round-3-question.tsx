@@ -82,7 +82,7 @@ export const Round3Question = (props: Round3QuestionProps) => {
           border="5px solid #000000"
           boxSizing="border-box"
         >
-          <Typography fontSize="1.5rem" fontWeight={900} color="#000" mb={3}>
+          <Typography fontSize="1.5rem" fontWeight={700} color="#000" mb={3}>
             CÂU HỎI {contestDetail.round3.currentQuestion + 1}:
           </Typography>
 
@@ -92,7 +92,19 @@ export const Round3Question = (props: Round3QuestionProps) => {
             spacing={3}
             flex={1}
             sx={{ overflowY: "auto" }} // Cho phép cuộn nếu nội dung quá dài
+            justifyContent="flex-start"
           >
+            <Typography
+              fontSize="1.5rem" // Tăng nhẹ size chữ cho dễ đọc kiểu article
+              lineHeight={1.6}
+              sx={{
+                whiteSpace: "pre-wrap",
+                textAlign: "justify", // Căn đều hai bên cho giống bài báo
+                flex: 1,
+              }}
+            >
+              {currentQuestion.question}
+            </Typography>
             {currentQuestion.image && (
               <Box
                 component="img"
@@ -108,18 +120,6 @@ export const Round3Question = (props: Round3QuestionProps) => {
                 }}
               />
             )}
-
-            <Typography
-              fontSize="1.5rem" // Tăng nhẹ size chữ cho dễ đọc kiểu article
-              lineHeight={1.6}
-              sx={{
-                whiteSpace: "pre-wrap",
-                textAlign: "justify", // Căn đều hai bên cho giống bài báo
-                flex: 1,
-              }}
-            >
-              {currentQuestion.question}
-            </Typography>
           </Stack>
         </Stack>
 
