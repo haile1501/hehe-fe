@@ -205,61 +205,198 @@ export const Round1Questions = () => {
         <Typography variant="h6">Danh sách câu hỏi</Typography>
 
         {edittingExam.round1?.questions.map((q, idx) => (
-          <Box
-            key={idx}
-            sx={{
-              p: 2,
-              border: "1px solid #ddd",
-              borderRadius: 2,
-              mb: 2,
-              background: editingIndex === idx ? "#fff8e1" : "transparent",
-            }}
-          >
-            <Stack direction="row" justifyContent="space-between">
-              <Typography fontWeight={600} sx={{ whiteSpace: "pre-wrap" }}>
-                Câu {idx + 1}: {q.question} ({q.time}s)
-              </Typography>
-
-              <Stack direction="row" spacing={1}>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<EditIcon />}
-                  onClick={() => handleEditQuestion(idx)}
-                >
-                  Sửa
-                </Button>
-
-                <Button
-                  size="small"
-                  color="error"
-                  variant="outlined"
-                  startIcon={<DeleteIcon />}
-                  onClick={() => setDeleteIndex(idx)}
-                >
-                  Xoá
-                </Button>
-              </Stack>
-            </Stack>
-
-            {q.image && (
-              <Box
-                component="img"
-                src={q.image}
-                sx={{ mt: 1, maxWidth: 300, borderRadius: 1, display: "block" }}
-              />
-            )}
-
-            <Stack sx={{ mt: 1 }}>
-              {q.choices.map((c) => (
-                <Typography key={c.label}>
-                  {c.label}. {c.text}{" "}
-                  {q.correctAnswer === c.label && (
-                    <strong>(Đáp án đúng)</strong>
-                  )}
+          <Box key={idx} sx={{ mb: 2 }}>
+            <Box
+              sx={{
+                p: 2,
+                border: "1px solid #ddd",
+                borderRadius: 2,
+                background: editingIndex === idx ? "#fff8e1" : "transparent",
+              }}
+            >
+              <Stack direction="row" justifyContent="space-between">
+                <Typography fontWeight={600} sx={{ whiteSpace: "pre-wrap" }}>
+                  Câu {idx + 1}: {q.question} ({q.time}s)
                 </Typography>
+
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={() => handleEditQuestion(idx)}
+                  >
+                    Sửa
+                  </Button>
+
+                  <Button
+                    size="small"
+                    color="error"
+                    variant="outlined"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => setDeleteIndex(idx)}
+                  >
+                    Xoá
+                  </Button>
+                </Stack>
+              </Stack>
+
+              {q.image && (
+                <Box
+                  component="img"
+                  src={q.image}
+                  sx={{
+                    mt: 1,
+                    maxWidth: 300,
+                    borderRadius: 1,
+                    display: "block",
+                  }}
+                />
+              )}
+
+              <Stack sx={{ mt: 1 }}>
+                {q.choices.map((c) => (
+                  <Typography key={c.label}>
+                    {c.label}. {c.text}{" "}
+                    {q.correctAnswer === c.label && (
+                      <strong>(Đáp án đúng)</strong>
+                    )}
+                  </Typography>
+                ))}
+              </Stack>
+            </Box>
+
+            {/* ===== DRAFT EDITOR (ngay dưới câu hỏi đang edit) ===== */}
+            {editingIndex === idx &&
+              draftQuestions.map((q, qIndex) => (
+                <Box
+                  key={qIndex}
+                  sx={{
+                    p: 2,
+                    mt: 2,
+                    border: "1px dashed #aaa",
+                    borderRadius: 2,
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    label="Nội dung câu hỏi"
+                    value={q.question}
+                    onChange={(e) =>
+                      handleQuestionChange(qIndex, e.target.value)
+                    }
+                    sx={{ mb: 2 }}
+                    multiline
+                    rows={5}
+                  />
+
+                  <Stack spacing={1} sx={{ mb: 2 }}>
+                    <Button variant="outlined" component="label">
+                      Tải ảnh lên
+                      <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={(e) =>
+                          e.target.files &&
+                          handleImageChange(qIndex, e.target.files[0])
+                        }
+                      />
+                    </Button>
+
+                    {q.image && (
+                      <Box sx={{ position: "relative", width: 200 }}>
+                        <img
+                          src={q.image}
+                          alt="Preview"
+                          style={{ width: "100%", borderRadius: 8 }}
+                        />
+                        <Button
+                          size="small"
+                          color="error"
+                          onClick={() => handleImageChange(qIndex, null)}
+                          sx={{
+                            minWidth: 0,
+                            position: "absolute",
+                            top: 5,
+                            right: 5,
+                            bgcolor: "white",
+                          }}
+                        >
+                          X
+                        </Button>
+                      </Box>
+                    )}
+                  </Stack>
+
+                  <TextField
+                    type="number"
+                    label="Thời gian (giây)"
+                    value={q.time}
+                    onChange={(e) =>
+                      handleTimeChange(qIndex, Number(e.target.value))
+                    }
+                    sx={{ mb: 2 }}
+                    inputProps={{ min: 1 }}
+                  />
+
+                  <Stack spacing={1}>
+                    {q.choices.map((choice, cIndex) => (
+                      <Stack
+                        key={cIndex}
+                        direction="row"
+                        alignItems="center"
+                        spacing={1}
+                      >
+                        <Radio
+                          checked={q.correctAnswer === choice.label}
+                          onChange={() =>
+                            handleCorrectChange(qIndex, choice.label)
+                          }
+                        />
+                        <Typography>{choice.label}.</Typography>
+                        <TextField
+                          size="small"
+                          placeholder={`Choice ${choice.label}`}
+                          value={choice.text}
+                          onChange={(e) =>
+                            handleChoiceChange(qIndex, cIndex, e.target.value)
+                          }
+                        />
+                      </Stack>
+                    ))}
+
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<AddIcon />}
+                      onClick={() => handleAddChoice(qIndex)}
+                      sx={{ mt: 1 }}
+                    >
+                      Thêm lựa chọn
+                    </Button>
+                  </Stack>
+
+                  <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+                    <Button
+                      variant="contained"
+                      startIcon={<SaveIcon />}
+                      onClick={() => handleSaveQuestion(qIndex)}
+                    >
+                      Cập nhật
+                    </Button>
+
+                    <Button
+                      color="error"
+                      variant="outlined"
+                      startIcon={<CloseIcon />}
+                      onClick={handleCancelQuestion}
+                    >
+                      Huỷ
+                    </Button>
+                  </Stack>
+                </Box>
               ))}
-            </Stack>
           </Box>
         ))}
       </Box>
@@ -275,128 +412,130 @@ export const Round1Questions = () => {
         Thêm câu hỏi
       </Button>
 
-      {/* ===== DRAFT EDITOR ===== */}
-      {draftQuestions.map((q, qIndex) => (
-        <Box
-          key={qIndex}
-          sx={{
-            p: 2,
-            border: "1px dashed #aaa",
-            borderRadius: 2,
-          }}
-        >
-          <TextField
-            fullWidth
-            label="Nội dung câu hỏi"
-            value={q.question}
-            onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
-            sx={{ mb: 2 }}
-            multiline
-            rows={5}
-          />
+      {/* ===== DRAFT EDITOR (cho câu hỏi mới) ===== */}
+      {editingIndex === null &&
+        draftQuestions.map((q, qIndex) => (
+          <Box
+            key={qIndex}
+            sx={{
+              p: 2,
+              border: "1px dashed #aaa",
+              borderRadius: 2,
+            }}
+          >
+            <TextField
+              fullWidth
+              label="Nội dung câu hỏi"
+              value={q.question}
+              onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+              sx={{ mb: 2 }}
+              multiline
+              rows={5}
+            />
 
-          <Stack spacing={1} sx={{ mb: 2 }}>
-            <Button variant="outlined" component="label">
-              Tải ảnh lên
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={(e) =>
-                  e.target.files && handleImageChange(qIndex, e.target.files[0])
-                }
-              />
-            </Button>
-
-            {q.image && (
-              <Box sx={{ position: "relative", width: 200 }}>
-                <img
-                  src={q.image}
-                  alt="Preview"
-                  style={{ width: "100%", borderRadius: 8 }}
-                />
-                <Button
-                  size="small"
-                  color="error"
-                  onClick={() => handleImageChange(qIndex, null)} // Logic xóa ảnh nếu cần
-                  sx={{
-                    minWidth: 0,
-                    position: "absolute",
-                    top: 5,
-                    right: 5,
-                    bgcolor: "white",
-                  }}
-                >
-                  X
-                </Button>
-              </Box>
-            )}
-          </Stack>
-
-          <TextField
-            type="number"
-            label="Thời gian (giây)"
-            value={q.time}
-            onChange={(e) => handleTimeChange(qIndex, Number(e.target.value))}
-            sx={{ mb: 2 }}
-            inputProps={{ min: 1 }}
-          />
-
-          <Stack spacing={1}>
-            {q.choices.map((choice, cIndex) => (
-              <Stack
-                key={cIndex}
-                direction="row"
-                alignItems="center"
-                spacing={1}
-              >
-                <Radio
-                  checked={q.correctAnswer === choice.label}
-                  onChange={() => handleCorrectChange(qIndex, choice.label)}
-                />
-                <Typography>{choice.label}.</Typography>
-                <TextField
-                  size="small"
-                  placeholder={`Choice ${choice.label}`}
-                  value={choice.text}
+            <Stack spacing={1} sx={{ mb: 2 }}>
+              <Button variant="outlined" component="label">
+                Tải ảnh lên
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
                   onChange={(e) =>
-                    handleChoiceChange(qIndex, cIndex, e.target.value)
+                    e.target.files &&
+                    handleImageChange(qIndex, e.target.files[0])
                   }
                 />
-              </Stack>
-            ))}
+              </Button>
 
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<AddIcon />}
-              onClick={() => handleAddChoice(qIndex)}
-              sx={{ mt: 1 }}
-            >
-              Thêm lựa chọn
-            </Button>
-          </Stack>
+              {q.image && (
+                <Box sx={{ position: "relative", width: 200 }}>
+                  <img
+                    src={q.image}
+                    alt="Preview"
+                    style={{ width: "100%", borderRadius: 8 }}
+                  />
+                  <Button
+                    size="small"
+                    color="error"
+                    onClick={() => handleImageChange(qIndex, null)}
+                    sx={{
+                      minWidth: 0,
+                      position: "absolute",
+                      top: 5,
+                      right: 5,
+                      bgcolor: "white",
+                    }}
+                  >
+                    X
+                  </Button>
+                </Box>
+              )}
+            </Stack>
 
-          <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              onClick={() => handleSaveQuestion(qIndex)}
-            >
-              {editingIndex !== null ? "Cập nhật" : "Lưu"}
-            </Button>
+            <TextField
+              type="number"
+              label="Thời gian (giây)"
+              value={q.time}
+              onChange={(e) => handleTimeChange(qIndex, Number(e.target.value))}
+              sx={{ mb: 2 }}
+              inputProps={{ min: 1 }}
+            />
 
-            <Button
-              color="error"
-              variant="outlined"
-              startIcon={<CloseIcon />}
-              onClick={handleCancelQuestion}
-            >
-              Huỷ
-            </Button>
-          </Stack>
-        </Box>
-      ))}
+            <Stack spacing={1}>
+              {q.choices.map((choice, cIndex) => (
+                <Stack
+                  key={cIndex}
+                  direction="row"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Radio
+                    checked={q.correctAnswer === choice.label}
+                    onChange={() => handleCorrectChange(qIndex, choice.label)}
+                  />
+                  <Typography>{choice.label}.</Typography>
+                  <TextField
+                    size="small"
+                    placeholder={`Choice ${choice.label}`}
+                    value={choice.text}
+                    onChange={(e) =>
+                      handleChoiceChange(qIndex, cIndex, e.target.value)
+                    }
+                  />
+                </Stack>
+              ))}
+
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={() => handleAddChoice(qIndex)}
+                sx={{ mt: 1 }}
+              >
+                Thêm lựa chọn
+              </Button>
+            </Stack>
+
+            <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                onClick={() => handleSaveQuestion(qIndex)}
+              >
+                Lưu
+              </Button>
+
+              <Button
+                color="error"
+                variant="outlined"
+                startIcon={<CloseIcon />}
+                onClick={handleCancelQuestion}
+              >
+                Huỷ
+              </Button>
+            </Stack>
+          </Box>
+        ))}
 
       {/* ===== DELETE CONFIRM ===== */}
       <Dialog open={deleteIndex !== null} onClose={() => setDeleteIndex(null)}>

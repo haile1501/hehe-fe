@@ -3,6 +3,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import { Timer } from "./round-1-question";
 import { Socket } from "socket.io-client";
 import { ReactNode, useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
 
 type Round3QuestionProps = {
   socket: Socket | null;
@@ -11,6 +12,9 @@ type Round3QuestionProps = {
 export const Round3Question = (props: Round3QuestionProps) => {
   const { socket } = props;
   const { contestDetail } = useSelector((state) => state.contest);
+  const { username } = useAuth();
+
+  const isViewer = username === "viewer";
 
   // State quản lý thời gian
   const [timeLeft, setTimeLeft] = useState(0);
@@ -141,9 +145,11 @@ export const Round3Question = (props: Round3QuestionProps) => {
         justifyContent="space-between"
         alignItems="center"
       >
-        <Stack width="100%" alignItems="center">
-          <Timer time={timeLeft} setIsOutOfTime={() => {}} />
-        </Stack>
+        {isViewer && (
+          <Stack width="100%" alignItems="center">
+            <Timer time={timeLeft} setIsOutOfTime={() => {}} delay={1500} />
+          </Stack>
+        )}
 
         <Box width="100%" height="40%">
           {contestDetail?.currentState === "show-answer" && (

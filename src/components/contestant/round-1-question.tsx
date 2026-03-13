@@ -19,6 +19,8 @@ export const Round1Question = (props: Round1QuestionProps) => {
   const round1 = contestDetail.round1;
   const currentQuestion = round1.questions[round1.currentQuestion];
 
+  const isViewer = username === "viewer";
+
   const remainTime = Math.max(
     0,
     Math.floor(
@@ -28,6 +30,30 @@ export const Round1Question = (props: Round1QuestionProps) => {
         1000,
     ),
   );
+
+  // Đếm ngầm cho cả viewer và thí sinh
+  useEffect(() => {
+    setIsOutOfTime(false); // Reset khi câu hỏi mới
+
+    const checkTime = setInterval(() => {
+      const currentRemainTime = Math.max(
+        0,
+        Math.floor(
+          ((currentQuestion.startedDate || Date.now()) +
+            (currentQuestion.time || 0) * 1000 -
+            Date.now()) /
+            1000,
+        ),
+      );
+
+      if (currentRemainTime <= 0) {
+        setIsOutOfTime(true);
+        clearInterval(checkTime);
+      }
+    }, 500);
+
+    return () => clearInterval(checkTime);
+  }, [round1.currentQuestion, currentQuestion.startedDate]);
 
   // 🔥 check team đã trả lời chưa (reload case)
   const existedAnswer = currentQuestion.teamAnswers?.find(
@@ -41,6 +67,8 @@ export const Round1Question = (props: Round1QuestionProps) => {
   const isAnswered = !!selected;
 
   const handleSelect = (label: string) => {
+    // Viewer không được chọn đáp án
+    if (isViewer) return;
     if (isAnswered || remainTime <= 0) return;
 
     setSelected(label);
@@ -66,33 +94,36 @@ export const Round1Question = (props: Round1QuestionProps) => {
     >
       <Stack direction="row" alignItems="center" spacing={4} width="80%">
         <GreenPanel>
-          <Stack direction="row" alignItems="center" width="100%" height="100%">
+          <Stack spacing={2} width="100%">
             <Typography
               variant="h5"
               fontWeight={700}
-              width={currentQuestion.image ? "50%" : "100%"}
               sx={{ whiteSpace: "pre-wrap" }}
             >
               {currentQuestion.question}
             </Typography>
             {currentQuestion.image && (
-              <Stack p={1} width="50%" height="100%">
-                <Box
-                  component="img"
-                  src={currentQuestion.image}
-                  width="100%"
-                  height="100%"
-                />
-              </Stack>
+              <Box
+                component="img"
+                src={currentQuestion.image}
+                sx={{
+                  maxWidth: "100%",
+                  maxHeight: "400px",
+                  objectFit: "contain",
+                }}
+              />
             )}
           </Stack>
         </GreenPanel>
-        <Box position="absolute" right={30} top={40}>
-          <Timer
-            time={remainTime}
-            setIsOutOfTime={() => setIsOutOfTime(true)}
-          />
-        </Box>
+        {isViewer && (
+          <Box position="absolute" right={30} top={40}>
+            <Timer
+              time={remainTime}
+              setIsOutOfTime={() => setIsOutOfTime(true)}
+              delay={1500}
+            />
+          </Box>
+        )}
       </Stack>
 
       <Grid container rowSpacing={4} columnSpacing={4} width="80vw">
@@ -102,7 +133,7 @@ export const Round1Question = (props: Round1QuestionProps) => {
               label={choice.label}
               text={choice.text}
               selected={selected === choice.label}
-              disabled={isAnswered || showResult}
+              disabled={isViewer || isAnswered || showResult}
               correctLabel={currentQuestion.correctAnswer || ""}
               showResult={showResult}
               onSelect={() => handleSelect(choice.label)}
@@ -161,27 +192,34 @@ export const GreenPanel = ({ children }: { children: ReactNode }) => {
 export const Timer = ({
   time,
   setIsOutOfTime,
+  delay = 0,
 }: {
   time: number;
   setIsOutOfTime: () => void;
+  delay?: number;
 }) => {
   const [currentTime, setCurrentTime] = useState(time);
 
   useEffect(() => {
     setCurrentTime(time); // reset khi prop thay đổi
 
-    const interval = setInterval(() => {
-      setCurrentTime((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    // Delay trước khi bắt đầu đếm
+    const delayTimeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        setCurrentTime((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
 
-    return () => clearInterval(interval);
-  }, [time]);
+      return () => clearInterval(interval);
+    }, delay);
+
+    return () => clearTimeout(delayTimeout);
+  }, [time, delay]);
 
   useEffect(() => {
     if (currentTime === 0) {

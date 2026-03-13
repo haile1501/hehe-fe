@@ -171,54 +171,146 @@ export const Round2Questions = () => {
         <Typography variant="h6">Danh sách câu hỏi</Typography>
 
         {edittingExam.round2?.questions.map((q, idx) => (
-          <Box
-            key={idx}
-            sx={{
-              p: 2,
-              border: "1px solid #ddd",
-              borderRadius: 2,
-              mb: 2,
-              background: editingIndex === idx ? "#fff8e1" : "transparent",
-            }}
-          >
-            <Stack direction="row" justifyContent="space-between">
-              <Typography fontWeight={600} sx={{ whiteSpace: "pre-wrap" }}>
-                Câu {idx + 1}: {q.question}
-              </Typography>
+          <Box key={idx} sx={{ mb: 2 }}>
+            <Box
+              sx={{
+                p: 2,
+                border: "1px solid #ddd",
+                borderRadius: 2,
+                background: editingIndex === idx ? "#fff8e1" : "transparent",
+              }}
+            >
+              <Stack direction="row" justifyContent="space-between">
+                <Typography fontWeight={600} sx={{ whiteSpace: "pre-wrap" }}>
+                  Câu {idx + 1}: {q.question}
+                </Typography>
 
-              <Stack direction="row" spacing={1}>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<EditIcon />}
-                  onClick={() => handleEditQuestion(idx)}
-                >
-                  Sửa
-                </Button>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={() => handleEditQuestion(idx)}
+                  >
+                    Sửa
+                  </Button>
 
-                <Button
-                  size="small"
-                  color="error"
-                  variant="outlined"
-                  startIcon={<DeleteIcon />}
-                  onClick={() => setDeleteIndex(idx)}
-                >
-                  Xoá
-                </Button>
+                  <Button
+                    size="small"
+                    color="error"
+                    variant="outlined"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => setDeleteIndex(idx)}
+                  >
+                    Xoá
+                  </Button>
+                </Stack>
               </Stack>
-            </Stack>
-            {q.image && (
-              <Box
-                component="img"
-                src={q.image}
-                sx={{
-                  mt: 1,
-                  maxWidth: 300,
-                  borderRadius: 1,
-                  display: "block",
-                }}
-              />
-            )}
+              {q.image && (
+                <Box
+                  component="img"
+                  src={q.image}
+                  sx={{
+                    mt: 1,
+                    maxWidth: 300,
+                    borderRadius: 1,
+                    display: "block",
+                  }}
+                />
+              )}
+            </Box>
+
+            {/* ===== DRAFT EDITOR (ngay dưới câu hỏi đang edit) ===== */}
+            {editingIndex === idx &&
+              draftQuestions.map((q, qIndex) => (
+                <Box
+                  key={qIndex}
+                  sx={{
+                    p: 2,
+                    mt: 2,
+                    border: "1px dashed #aaa",
+                    borderRadius: 2,
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    label="Nội dung câu hỏi"
+                    value={q.question}
+                    onChange={(e) =>
+                      handleQuestionChange(qIndex, e.target.value)
+                    }
+                    sx={{ mb: 2 }}
+                    multiline
+                    rows={5}
+                  />
+
+                  <Stack spacing={1} sx={{ mb: 2 }}>
+                    <Button variant="outlined" component="label">
+                      Tải ảnh lên
+                      <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={(e) =>
+                          e.target.files &&
+                          handleImageChange(qIndex, e.target.files[0])
+                        }
+                      />
+                    </Button>
+
+                    {q.image && (
+                      <Box sx={{ position: "relative", width: 200 }}>
+                        <img
+                          src={q.image}
+                          alt="Preview"
+                          style={{ width: "100%", borderRadius: 8 }}
+                        />
+                        <Button
+                          size="small"
+                          color="error"
+                          onClick={() => handleImageChange(qIndex, null)}
+                          sx={{
+                            minWidth: 0,
+                            position: "absolute",
+                            top: 5,
+                            right: 5,
+                            bgcolor: "white",
+                          }}
+                        >
+                          X
+                        </Button>
+                      </Box>
+                    )}
+                  </Stack>
+
+                  <TextField
+                    fullWidth
+                    label="Đáp án"
+                    value={q.choices?.[0]?.text || ""}
+                    onChange={(e) => handleAnswerChange(qIndex, e.target.value)}
+                    sx={{ mb: 2 }}
+                  />
+
+                  <Stack direction="row" spacing={2}>
+                    <Button
+                      variant="contained"
+                      startIcon={<SaveIcon />}
+                      onClick={() => handleSaveQuestion(qIndex)}
+                    >
+                      Cập nhật
+                    </Button>
+
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      startIcon={<CloseIcon />}
+                      onClick={handleCancelQuestion}
+                    >
+                      Huỷ
+                    </Button>
+                  </Stack>
+                </Box>
+              ))}
           </Box>
         ))}
       </Box>
@@ -234,92 +326,94 @@ export const Round2Questions = () => {
         Thêm câu hỏi
       </Button>
 
-      {/* ===== DRAFT EDITOR ===== */}
-      {draftQuestions.map((q, qIndex) => (
-        <Box
-          key={qIndex}
-          sx={{
-            p: 2,
-            border: "1px dashed #aaa",
-            borderRadius: 2,
-          }}
-        >
-          <TextField
-            fullWidth
-            label="Nội dung câu hỏi"
-            value={q.question}
-            onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
-            sx={{ mb: 2 }}
-            multiline
-            rows={5}
-          />
+      {/* ===== DRAFT EDITOR (cho câu hỏi mới) ===== */}
+      {editingIndex === null &&
+        draftQuestions.map((q, qIndex) => (
+          <Box
+            key={qIndex}
+            sx={{
+              p: 2,
+              border: "1px dashed #aaa",
+              borderRadius: 2,
+            }}
+          >
+            <TextField
+              fullWidth
+              label="Nội dung câu hỏi"
+              value={q.question}
+              onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+              sx={{ mb: 2 }}
+              multiline
+              rows={5}
+            />
 
-          <Stack spacing={1} sx={{ mb: 2 }}>
-            <Button variant="outlined" component="label">
-              Tải ảnh lên
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={(e) =>
-                  e.target.files && handleImageChange(qIndex, e.target.files[0])
-                }
-              />
-            </Button>
-
-            {q.image && (
-              <Box sx={{ position: "relative", width: 200 }}>
-                <img
-                  src={q.image}
-                  alt="Preview"
-                  style={{ width: "100%", borderRadius: 8 }}
+            <Stack spacing={1} sx={{ mb: 2 }}>
+              <Button variant="outlined" component="label">
+                Tải ảnh lên
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={(e) =>
+                    e.target.files &&
+                    handleImageChange(qIndex, e.target.files[0])
+                  }
                 />
-                <Button
-                  size="small"
-                  color="error"
-                  onClick={() => handleImageChange(qIndex, null)} // Logic xóa ảnh nếu cần
-                  sx={{
-                    minWidth: 0,
-                    position: "absolute",
-                    top: 5,
-                    right: 5,
-                    bgcolor: "white",
-                  }}
-                >
-                  X
-                </Button>
-              </Box>
-            )}
-          </Stack>
+              </Button>
 
-          <TextField
-            fullWidth
-            label="Đáp án"
-            value={q.choices?.[0]?.text || ""}
-            onChange={(e) => handleAnswerChange(qIndex, e.target.value)}
-            sx={{ mb: 2 }}
-          />
+              {q.image && (
+                <Box sx={{ position: "relative", width: 200 }}>
+                  <img
+                    src={q.image}
+                    alt="Preview"
+                    style={{ width: "100%", borderRadius: 8 }}
+                  />
+                  <Button
+                    size="small"
+                    color="error"
+                    onClick={() => handleImageChange(qIndex, null)}
+                    sx={{
+                      minWidth: 0,
+                      position: "absolute",
+                      top: 5,
+                      right: 5,
+                      bgcolor: "white",
+                    }}
+                  >
+                    X
+                  </Button>
+                </Box>
+              )}
+            </Stack>
 
-          <Stack direction="row" spacing={2}>
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              onClick={() => handleSaveQuestion(qIndex)}
-            >
-              {editingIndex !== null ? "Cập nhật" : "Lưu"}
-            </Button>
+            <TextField
+              fullWidth
+              label="Đáp án"
+              value={q.choices?.[0]?.text || ""}
+              onChange={(e) => handleAnswerChange(qIndex, e.target.value)}
+              sx={{ mb: 2 }}
+            />
 
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<CloseIcon />}
-              onClick={handleCancelQuestion}
-            >
-              Huỷ
-            </Button>
-          </Stack>
-        </Box>
-      ))}
+            <Stack direction="row" spacing={2}>
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                onClick={() => handleSaveQuestion(qIndex)}
+              >
+                Lưu
+              </Button>
+
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<CloseIcon />}
+                onClick={handleCancelQuestion}
+              >
+                Huỷ
+              </Button>
+            </Stack>
+          </Box>
+        ))}
 
       {/* ===== DELETE CONFIRM ===== */}
       <Dialog open={deleteIndex !== null} onClose={() => setDeleteIndex(null)}>

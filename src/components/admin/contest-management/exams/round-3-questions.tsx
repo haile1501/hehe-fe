@@ -159,55 +159,144 @@ export const Round3Questions = () => {
         )}
 
         {currentQuestions.map((q, idx) => (
-          <Box
-            key={idx}
-            sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, mb: 2 }}
-          >
-            <Stack direction="row" justifyContent="space-between">
-              <Typography fontWeight={600} sx={{ whiteSpace: "pre-wrap" }}>
-                Câu {idx + 1}: {q.question}
-              </Typography>
+          <Box key={idx} sx={{ mb: 2 }}>
+            <Box
+              sx={{
+                p: 2,
+                border: "1px solid #ddd",
+                borderRadius: 2,
+                background: editingIndex === idx ? "#fff8e1" : "transparent",
+              }}
+            >
+              <Stack direction="row" justifyContent="space-between">
+                <Typography fontWeight={600} sx={{ whiteSpace: "pre-wrap" }}>
+                  Câu {idx + 1}: {q.question}
+                </Typography>
 
-              <Stack direction="row" spacing={1}>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<EditIcon />}
-                  onClick={() => handleEditQuestion(idx)}
-                >
-                  Sửa
-                </Button>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={() => handleEditQuestion(idx)}
+                  >
+                    Sửa
+                  </Button>
 
-                <Button
-                  size="small"
-                  color="error"
-                  variant="outlined"
-                  startIcon={<DeleteIcon />}
-                  onClick={() => setDeleteIndex(idx)}
-                >
-                  Xoá
-                </Button>
+                  <Button
+                    size="small"
+                    color="error"
+                    variant="outlined"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => setDeleteIndex(idx)}
+                  >
+                    Xoá
+                  </Button>
+                </Stack>
               </Stack>
-            </Stack>
 
-            {q.image && (
+              {q.image && (
+                <Box
+                  component="img"
+                  src={q.image}
+                  sx={{
+                    mt: 2,
+                    maxWidth: "100%",
+                    width: 300,
+                    height: "auto",
+                    borderRadius: 1,
+                    display: "block",
+                  }}
+                />
+              )}
+
+              <Typography mt={1}>
+                Đáp án: {q.choices?.[0]?.text || "(chưa có đáp án)"}
+              </Typography>
+            </Box>
+
+            {/* ===== EDIT FORM (ngay dưới câu hỏi đang edit) ===== */}
+            {editingIndex === idx && draftQuestions.length > 0 && (
               <Box
-                component="img"
-                src={q.image}
-                sx={{
-                  mt: 2,
-                  maxWidth: "100%",
-                  width: 300, // Tăng size cho dễ nhìn
-                  height: "auto",
-                  borderRadius: 1,
-                  display: "block",
-                }}
-              />
-            )}
+                sx={{ p: 2, mt: 2, border: "1px dashed #aaa", borderRadius: 2 }}
+              >
+                <TextField
+                  fullWidth
+                  label="Nội dung câu hỏi"
+                  multiline
+                  rows={5}
+                  value={draftQuestions[0].question}
+                  onChange={(e) => handleQuestionChange(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
 
-            <Typography mt={1}>
-              Đáp án: {q.choices?.[0]?.text || "(chưa có đáp án)"}
-            </Typography>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{ mb: 2 }}
+                >
+                  <Button variant="outlined" component="label">
+                    Tải ảnh
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={(e) =>
+                        e.target.files && handleImageChange(e.target.files[0])
+                      }
+                    />
+                  </Button>
+                  {draftQuestions[0].image && (
+                    <Box sx={{ position: "relative" }}>
+                      <img
+                        src={draftQuestions[0].image}
+                        alt="preview"
+                        style={{ height: 50, borderRadius: 4 }}
+                      />
+                      <Button
+                        size="small"
+                        color="error"
+                        sx={{ minWidth: 0, ml: 1 }}
+                        onClick={() => handleImageChange(null)}
+                      >
+                        Xóa
+                      </Button>
+                    </Box>
+                  )}
+                </Stack>
+
+                <TextField
+                  fullWidth
+                  label="Đáp án đúng"
+                  value={draftQuestions[0].choices?.[0]?.text || ""}
+                  onChange={(e) => handleAnswerChange(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
+
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="contained"
+                    startIcon={<SaveIcon />}
+                    onClick={handleSave}
+                  >
+                    Cập nhật
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<CloseIcon />}
+                    onClick={() => {
+                      setDraftQuestions([]);
+                      setEditingIndex(null);
+                    }}
+                  >
+                    Huỷ
+                  </Button>
+                </Stack>
+              </Box>
+            )}
           </Box>
         ))}
       </Box>
@@ -222,13 +311,13 @@ export const Round3Questions = () => {
         Thêm câu hỏi
       </Button>
 
-      {/* ===== EDIT/ADD FORM ===== */}
-      {draftQuestions.length > 0 && (
+      {/* ===== ADD FORM (cho câu hỏi mới) ===== */}
+      {editingIndex === null && draftQuestions.length > 0 && (
         <Box sx={{ p: 2, border: "1px dashed #aaa", borderRadius: 2 }}>
           <TextField
             fullWidth
             label="Nội dung câu hỏi"
-            multiline // CHO PHÉP XUỐNG DÒNG
+            multiline
             rows={5}
             value={draftQuestions[0].question}
             onChange={(e) => handleQuestionChange(e.target.value)}
