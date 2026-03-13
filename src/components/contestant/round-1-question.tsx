@@ -38,18 +38,22 @@ export const Round1Question = (props: Round1QuestionProps) => {
 
   const remainTime = calcRemainTime();
 
-  // Đếm ngầm cho cả viewer và thí sinh
+  // Đếm ngầm cho cả viewer và thí sinh (có delay 1.5s)
   useEffect(() => {
     setIsOutOfTime(false); // Reset khi câu hỏi mới
 
-    const checkTime = setInterval(() => {
-      if (calcRemainTime() <= 0) {
-        setIsOutOfTime(true);
-        clearInterval(checkTime);
-      }
-    }, 500);
+    const delayTimeout = setTimeout(() => {
+      const checkTime = setInterval(() => {
+        if (calcRemainTime() <= 0) {
+          setIsOutOfTime(true);
+          clearInterval(checkTime);
+        }
+      }, 500);
 
-    return () => clearInterval(checkTime);
+      return () => clearInterval(checkTime);
+    }, 1500);
+
+    return () => clearTimeout(delayTimeout);
   }, [round1.currentQuestion, currentQuestion.startedDate]);
 
   // 🔥 check team đã trả lời chưa (reload case)
