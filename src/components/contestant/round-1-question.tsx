@@ -115,7 +115,7 @@ export const Round1Question = (props: Round1QuestionProps) => {
         {isViewer && (
           <Box position="absolute" right={30} top={40}>
             <Timer
-              time={remainTime}
+              time={isOutOfTime ? 0 : remainTime}
               setIsOutOfTime={() => setIsOutOfTime(true)}
               delay={1500}
             />
