@@ -21,32 +21,29 @@ export const Round1Question = (props: Round1QuestionProps) => {
 
   const isViewer = username === "viewer";
 
-  const remainTime = Math.max(
-    0,
-    Math.floor(
-      ((currentQuestion.startedDate || Date.now()) +
-        (currentQuestion.time || 0) * 1000 -
-        Date.now()) /
-        1000,
-    ),
-  );
+  const maxTime = currentQuestion.time || 0;
+
+  const calcRemainTime = () => {
+    const raw = Math.max(
+      0,
+      Math.floor(
+        ((currentQuestion.startedDate || Date.now()) +
+          maxTime * 1000 -
+          Date.now()) /
+          1000,
+      ),
+    );
+    return Math.min(raw, maxTime);
+  };
+
+  const remainTime = calcRemainTime();
 
   // Đếm ngầm cho cả viewer và thí sinh
   useEffect(() => {
     setIsOutOfTime(false); // Reset khi câu hỏi mới
 
     const checkTime = setInterval(() => {
-      const currentRemainTime = Math.max(
-        0,
-        Math.floor(
-          ((currentQuestion.startedDate || Date.now()) +
-            (currentQuestion.time || 0) * 1000 -
-            Date.now()) /
-            1000,
-        ),
-      );
-
-      if (currentRemainTime <= 0) {
+      if (calcRemainTime() <= 0) {
         setIsOutOfTime(true);
         clearInterval(checkTime);
       }
