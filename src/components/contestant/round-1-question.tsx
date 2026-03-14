@@ -26,7 +26,7 @@ export const Round1Question = (props: Round1QuestionProps) => {
   const calcRemainTime = () => {
     const raw = Math.max(
       0,
-      Math.floor(
+      Math.ceil(
         ((currentQuestion.startedDate || Date.now()) +
           maxTime * 1000 -
           Date.now()) /
@@ -119,6 +119,7 @@ export const Round1Question = (props: Round1QuestionProps) => {
         {isViewer && (
           <Box position="absolute" right={30} top={40}>
             <Timer
+              key={round1.currentQuestion}
               time={isOutOfTime ? 0 : remainTime}
               setIsOutOfTime={() => setIsOutOfTime(true)}
               delay={1500}
