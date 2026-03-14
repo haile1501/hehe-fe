@@ -120,11 +120,9 @@ export const Round1Question = (props: Round1QuestionProps) => {
             )}
           </Stack>
         </GreenPanel>
-        {isViewer && (
-          <Box position="absolute" right={30} top={40}>
-            <TimerDisplay time={remainTime} />
-          </Box>
-        )}
+        <Box position="absolute" right={30} top={40}>
+          <TimerDisplay time={remainTime} />
+        </Box>
       </Stack>
 
       <Grid container rowSpacing={4} columnSpacing={4} width="80vw">
