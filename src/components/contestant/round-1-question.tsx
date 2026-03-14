@@ -23,38 +23,42 @@ export const Round1Question = (props: Round1QuestionProps) => {
 
   const maxTime = currentQuestion.time || 0;
 
-  const calcRemainTime = () => {
-    const raw = Math.max(
-      0,
-      Math.ceil(
-        ((currentQuestion.startedDate || Date.now()) +
-          maxTime * 1000 -
-          Date.now()) /
-          1000,
-      ),
-    );
-    return Math.min(raw, maxTime);
-  };
+  // Đếm local cho cả viewer và thí sinh (có delay 1.5s)
+  const [remainTime, setRemainTime] = useState(maxTime);
 
-  const remainTime = calcRemainTime();
-
-  // Đếm ngầm cho cả viewer và thí sinh (có delay 1.5s)
   useEffect(() => {
-    setIsOutOfTime(false); // Reset khi câu hỏi mới
+    setIsOutOfTime(false);
+    setRemainTime(maxTime);
 
     const delayTimeout = setTimeout(() => {
-      const checkTime = setInterval(() => {
-        if (calcRemainTime() <= 0) {
-          setIsOutOfTime(true);
-          clearInterval(checkTime);
-        }
-      }, 500);
+      const interval = setInterval(() => {
+        setRemainTime((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
 
-      return () => clearInterval(checkTime);
+      // cleanup interval khi unmount hoặc câu hỏi mới
+      // lưu ref để clear
+      (window as any).__round1Interval = interval;
     }, 1500);
 
-    return () => clearTimeout(delayTimeout);
-  }, [round1.currentQuestion, currentQuestion.startedDate]);
+    return () => {
+      clearTimeout(delayTimeout);
+      if ((window as any).__round1Interval) {
+        clearInterval((window as any).__round1Interval);
+      }
+    };
+  }, [round1.currentQuestion, maxTime]);
+
+  useEffect(() => {
+    if (remainTime <= 0) {
+      setIsOutOfTime(true);
+    }
+  }, [remainTime]);
 
   // 🔥 check team đã trả lời chưa (reload case)
   const existedAnswer = currentQuestion.teamAnswers?.find(
@@ -118,12 +122,7 @@ export const Round1Question = (props: Round1QuestionProps) => {
         </GreenPanel>
         {isViewer && (
           <Box position="absolute" right={30} top={40}>
-            <Timer
-              key={round1.currentQuestion}
-              time={isOutOfTime ? 0 : remainTime}
-              setIsOutOfTime={() => setIsOutOfTime(true)}
-              delay={1500}
-            />
+            <TimerDisplay time={remainTime} />
           </Box>
         )}
       </Stack>
@@ -188,6 +187,30 @@ export const GreenPanel = ({ children }: { children: ReactNode }) => {
         {children}
       </Box>
     </Box>
+  );
+};
+
+export const TimerDisplay = ({ time }: { time: number }) => {
+  return (
+    <Stack
+      alignItems="center"
+      justifyContent="center"
+      bgcolor="#000000"
+      borderRadius="50%"
+      height="80px"
+      width="90px"
+      border="10px solid #01BF63"
+    >
+      <Typography
+        sx={{
+          fontFamily: "'Digital7', sans-serif",
+          fontSize: "3rem",
+          color: time > 15 ? "#07FC06" : time >= 6 ? "#FFF812" : "#FD1102",
+        }}
+      >
+        {time}
+      </Typography>
+    </Stack>
   );
 };
 

@@ -1,6 +1,6 @@
 import { useSelector } from "@/redux/store";
 import { Box, Stack, Typography } from "@mui/material";
-import { Timer } from "./round-1-question";
+import { TimerDisplay } from "./round-1-question";
 import { Socket } from "socket.io-client";
 import { ReactNode, useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
@@ -147,7 +147,7 @@ export const Round3Question = (props: Round3QuestionProps) => {
       >
         {isViewer && (
           <Stack width="100%" alignItems="center">
-            <Timer time={timeLeft} setIsOutOfTime={() => {}} delay={1500} />
+            <TimerDisplay time={timeLeft} />
           </Stack>
         )}
 
