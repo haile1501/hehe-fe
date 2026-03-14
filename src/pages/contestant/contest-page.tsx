@@ -87,7 +87,7 @@ export const ContestantContestPage = () => {
             textAlign="center"
             color="#2f846f"
           >
-            Cuộc thi sắp bắt đầu
+            Cuộc thi sắp bắt đầu.
           </Typography>
         </Paper>
       </Box>
