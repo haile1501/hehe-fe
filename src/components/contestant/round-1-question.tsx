@@ -121,7 +121,7 @@ export const Round1Question = (props: Round1QuestionProps) => {
           </Stack>
         </GreenPanel>
         <Box position="absolute" right={30} top={40}>
-          <TimerDisplay time={remainTime} />
+          <TimerDisplay time={remainTime} isPlayer={username !== "viewer"} />
         </Box>
       </Stack>
 
@@ -188,7 +188,17 @@ export const GreenPanel = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const TimerDisplay = ({ time }: { time: number }) => {
+export const TimerDisplay = ({
+  time,
+  isPlayer,
+}: {
+  time: number;
+  isPlayer?: boolean;
+}) => {
+  if (isPlayer) {
+    return <></>;
+  }
+
   return (
     <Stack
       alignItems="center"
